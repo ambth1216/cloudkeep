@@ -1,0 +1,18 @@
+# Client Dependencies & Build Artifacts
+node_modules
+dist
+dist-ssr
+*.local
+
+# Environment
+.env
+.env.local
+.env.*.local
+
+# Logs
+logs
+*.log
+
+# Caches
+.vite
+.eslintcache

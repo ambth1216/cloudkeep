@@ -1,0 +1,80 @@
+# Dependencies
+node_modules/
+**/node_modules/
+.pnpm-store
+
+# Environment files
+.env
+.env.local
+.env.development.local
+.env.test.local
+.env.production.local
+*.env
+server/.env
+client/.env
+
+# Build & Output Directories
+dist/
+dist-ssr/
+build/
+out/
+client/dist/
+server/dist/
+server/build/
+*.tsbuildinfo
+
+# Logs & Diagnostics
+logs/
+*.log
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+pnpm-debug.log*
+lerna-debug.log*
+
+# Database & SQLite / Prisma
+*.db
+*.db-journal
+*.sqlite
+*.sqlite3
+prisma/dev.db
+prisma/dev.db-journal
+server/prisma/dev.db
+
+# Testing & Coverage
+coverage/
+.nyc_output/
+*.lcov
+
+# Temporary files & Caches
+.cache/
+.vite/
+.eslintcache
+.parcel-cache/
+.turbo/
+.vercel
+tmp/
+temp/
+
+# System & OS Files
+.DS_Store
+.DS_Store?
+._*
+.Spotlight-V100
+.Trashes
+ehthumbs.db
+Thumbs.db
+Desktop.ini
+
+# IDE & Editor Files
+.vscode/*
+!.vscode/extensions.json
+!.vscode/settings.json
+!.vscode/tasks.json
+!.vscode/launch.json
+.idea/
+*.suo
+*.ntvs*
+*.njsproj
+*.sln
+*.sw?

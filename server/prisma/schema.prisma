@@ -1,0 +1,136 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+}
+
+// ─── User ────────────────────────────────────────────────────────────────────
+
+model User {
+  id           String   @id @default(uuid())
+  email        String   @unique
+  name         String
+  passwordHash String   @map("password_hash")
+  storageUsed  BigInt   @default(0) @map("storage_used")
+  storageLimit BigInt   @default(524288000) @map("storage_limit") // 500 MB
+  createdAt    DateTime @default(now()) @map("created_at")
+  updatedAt    DateTime @updatedAt @map("updated_at")
+
+  folders      Folder[]
+  files        File[]
+  sharedLinks  SharedLink[]
+  activityLogs ActivityLog[]
+  favorites    Favorite[]
+
+  @@map("users")
+}
+
+// ─── Folder ──────────────────────────────────────────────────────────────────
+
+model Folder {
+  id        String    @id @default(uuid())
+  name      String
+  userId    String    @map("user_id")
+  parentId  String?   @map("parent_id")
+  isDeleted Boolean   @default(false) @map("is_deleted")
+  deletedAt DateTime? @map("deleted_at")
+  createdAt DateTime  @default(now()) @map("created_at")
+  updatedAt DateTime  @updatedAt @map("updated_at")
+
+  user      User       @relation(fields: [userId], references: [id], onDelete: Cascade)
+  parent    Folder?    @relation("FolderNesting", fields: [parentId], references: [id])
+  children  Folder[]   @relation("FolderNesting")
+  files     File[]
+  favorites Favorite[]
+
+  @@index([userId])
+  @@index([parentId])
+  @@map("folders")
+}
+
+// ─── File ────────────────────────────────────────────────────────────────────
+
+model File {
+  id                     String    @id @default(uuid())
+  name                   String
+  originalName           String    @map("original_name")
+  mimeType               String    @map("mime_type")
+  size                   BigInt
+  cloudinaryPublicId     String    @map("cloudinary_public_id")
+  cloudinaryUrl          String    @map("cloudinary_url")
+  cloudinaryResourceType String    @default("raw") @map("cloudinary_resource_type")
+  userId                 String    @map("user_id")
+  folderId               String?   @map("folder_id")
+  isDeleted              Boolean   @default(false) @map("is_deleted")
+  deletedAt              DateTime? @map("deleted_at")
+  createdAt              DateTime  @default(now()) @map("created_at")
+  updatedAt              DateTime  @updatedAt @map("updated_at")
+
+  user        User         @relation(fields: [userId], references: [id], onDelete: Cascade)
+  folder      Folder?      @relation(fields: [folderId], references: [id])
+  sharedLinks SharedLink[]
+  favorites   Favorite[]
+
+  @@index([userId])
+  @@index([folderId])
+  @@index([userId, isDeleted])
+  @@map("files")
+}
+
+// ─── SharedLink ──────────────────────────────────────────────────────────────
+
+model SharedLink {
+  id            String   @id @default(uuid())
+  token         String   @unique
+  fileId        String   @map("file_id")
+  userId        String   @map("user_id")
+  expiresAt     DateTime @map("expires_at")
+  isActive      Boolean  @default(true) @map("is_active")
+  downloadCount Int      @default(0) @map("download_count")
+  createdAt     DateTime @default(now()) @map("created_at")
+
+  file File @relation(fields: [fileId], references: [id], onDelete: Cascade)
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([token])
+  @@index([fileId])
+  @@map("shared_links")
+}
+
+// ─── ActivityLog ─────────────────────────────────────────────────────────────
+
+model ActivityLog {
+  id         String   @id @default(uuid())
+  userId     String   @map("user_id")
+  action     String // UPLOAD, DOWNLOAD, DELETE, RENAME, MOVE, COPY, SHARE, RESTORE, CREATE_FOLDER, etc.
+  entityType String   @map("entity_type") // FILE, FOLDER
+  entityId   String   @map("entity_id")
+  metadata   Json?    @db.JsonB
+  createdAt  DateTime @default(now()) @map("created_at")
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId])
+  @@index([createdAt])
+  @@map("activity_logs")
+}
+
+// ─── Favorite ────────────────────────────────────────────────────────────────
+
+model Favorite {
+  id        String   @id @default(uuid())
+  userId    String   @map("user_id")
+  fileId    String?  @map("file_id")
+  folderId  String?  @map("folder_id")
+  createdAt DateTime @default(now()) @map("created_at")
+
+  user   User    @relation(fields: [userId], references: [id], onDelete: Cascade)
+  file   File?   @relation(fields: [fileId], references: [id], onDelete: Cascade)
+  folder Folder? @relation(fields: [folderId], references: [id], onDelete: Cascade)
+
+  @@unique([userId, fileId])
+  @@unique([userId, folderId])
+  @@map("favorites")
+}

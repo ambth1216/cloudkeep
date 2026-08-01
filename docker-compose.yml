@@ -1,0 +1,71 @@
+version: "3.8"
+
+services:
+  postgres:
+    image: postgres:17
+    container_name: cloudkeep-db
+    restart: unless-stopped
+    environment:
+      POSTGRES_USER: ${POSTGRES_USER:-cloudkeep}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-cloudkeep_password}
+      POSTGRES_DB: ${POSTGRES_DB:-cloudkeep_db}
+    ports:
+      - "5432:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ${POSTGRES_USER:-cloudkeep} -d ${POSTGRES_DB:-cloudkeep_db}"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    networks:
+      - cloudkeep-network
+
+  backend:
+    build:
+      context: ./server
+      dockerfile: Dockerfile
+    container_name: cloudkeep-backend
+    restart: unless-stopped
+    env_file:
+      - ./server/.env
+    environment:
+      NODE_ENV: production
+      PORT: 5000
+      DATABASE_URL: postgresql://${POSTGRES_USER:-cloudkeep}:${POSTGRES_PASSWORD:-cloudkeep_password}@postgres:5432/${POSTGRES_DB:-cloudkeep_db}
+      JWT_SECRET: ${JWT_SECRET:-nbjkff158dfbcvhjBHGYTG125HCCGhhvhg}
+      CLOUDINARY_CLOUD_NAME: ${CLOUDINARY_CLOUD_NAME:-djzf3eqlw}
+      CLOUDINARY_API_KEY: ${CLOUDINARY_API_KEY:-144179582665747}
+      CLOUDINARY_API_SECRET: ${CLOUDINARY_API_SECRET:-C5KadE9mTk9NrIPJZj4YGaXSvwE}
+      MAX_FILE_SIZE: ${MAX_FILE_SIZE:-52428800}
+      STORAGE_LIMIT: ${STORAGE_LIMIT:-524288000}
+    ports:
+      - "5000:5000"
+    depends_on:
+      postgres:
+        condition: service_healthy
+    networks:
+      - cloudkeep-network
+
+  frontend:
+    build:
+      context: ./client
+      dockerfile: Dockerfile
+      args:
+        VITE_API_URL: /api
+    container_name: cloudkeep-frontend
+    restart: unless-stopped
+    ports:
+      - "3000:3000"
+    depends_on:
+      - backend
+    networks:
+      - cloudkeep-network
+
+volumes:
+  postgres_data:
+    driver: local
+
+networks:
+  cloudkeep-network:
+    driver: bridge

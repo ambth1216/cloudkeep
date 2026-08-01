@@ -1,0 +1,19 @@
+# Server Dependencies & Build Artifacts
+node_modules
+dist
+build
+*.tsbuildinfo
+
+# Environment
+.env
+.env.local
+.env.*.local
+
+# Logs
+logs
+*.log
+
+# Database
+*.db
+*.sqlite
+prisma/dev.db
