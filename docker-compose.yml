@@ -4,7 +4,7 @@ services:
   postgres:
     image: postgres:17
     container_name: cloudkeep-db
-    restart: unless-stopped
+    restart: no
     environment:
       POSTGRES_USER: ${POSTGRES_USER:-cloudkeep}
       POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-cloudkeep_password}
@@ -29,8 +29,6 @@ services:
     restart: unless-stopped
     env_file:
       - ./server/.env
-    environment:
-      DATABASE_URL: postgresql://${POSTGRES_USER:-cloudkeep}:${POSTGRES_PASSWORD:-cloudkeep_password}@postgres:5432/${POSTGRES_DB:-cloudkeep_db}
     ports:
       - "5000:5000"
     depends_on:
