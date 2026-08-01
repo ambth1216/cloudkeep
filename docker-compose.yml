@@ -30,15 +30,7 @@ services:
     env_file:
       - ./server/.env
     environment:
-      NODE_ENV: production
-      PORT: 5000
       DATABASE_URL: postgresql://${POSTGRES_USER:-cloudkeep}:${POSTGRES_PASSWORD:-cloudkeep_password}@postgres:5432/${POSTGRES_DB:-cloudkeep_db}
-      JWT_SECRET: ${JWT_SECRET:-nbjkff158dfbcvhjBHGYTG125HCCGhhvhg}
-      CLOUDINARY_CLOUD_NAME: ${CLOUDINARY_CLOUD_NAME:-djzf3eqlw}
-      CLOUDINARY_API_KEY: ${CLOUDINARY_API_KEY:-144179582665747}
-      CLOUDINARY_API_SECRET: ${CLOUDINARY_API_SECRET:-C5KadE9mTk9NrIPJZj4YGaXSvwE}
-      MAX_FILE_SIZE: ${MAX_FILE_SIZE:-52428800}
-      STORAGE_LIMIT: ${STORAGE_LIMIT:-524288000}
     ports:
       - "5000:5000"
     depends_on:
