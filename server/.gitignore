@@ -17,3 +17,6 @@ logs
 *.db
 *.sqlite
 prisma/dev.db
+
+*.pem
+key.pem
