@@ -27,7 +27,7 @@ RUN npm install -g serve
 COPY --from=builder /app/dist ./dist
 
 # Expose port 3000 for ALB routing
-EXPOSE 3000
+EXPOSE 80
 
 # Serve Single Page Application
-CMD ["serve", "-s", "dist", "-l", "3000"]
+CMD ["serve", "-s", "dist", "-l", "80"]
